@@ -1,0 +1,35 @@
+{
+  "name": "url_shortner",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/server.js", 
+  "scripts": {
+    "clean": "rm -rf dist",
+    "build":"tsc",
+    "start": "npm run build && node dist/server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gokultp08/url_shortner.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/gokultp08/url_shortner/issues"
+  },
+  "homepage": "https://github.com/gokultp08/url_shortner#readme",
+  "devDependencies": {
+    "@types/express": "^5.0.3",
+    "@types/node": "^24.2.1",
+    "dotenv": "^17.2.1",
+    "express": "^5.1.0",
+    "install": "^0.13.0",
+    "npm": "^11.5.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.2"
+  },
+  "dependencies": {
+    "nanoid": "^5.1.5"
+  }
+}
