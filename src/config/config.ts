@@ -6,7 +6,7 @@ dotenv.config();
 const getConfig = () => ({
   NODE_ENV: process.env.NODE_ENV || ENVS.dev,
   PORT: process.env.PORT || 3000,
-  BASE_URL: process.env.BASE_URL || `localhost`,
+  BASE_URL: process.env.BASE_URL || "http://localhost:3000",
   DATABASE: {
     HOST: process.env.DB_HOST,
     USER: process.env.DB_USER,

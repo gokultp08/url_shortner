@@ -32,7 +32,7 @@ app.get("/health", (_req: any, res: any) => {
   res.status(200).send("ok");
 });
 
-app.use("/api/v1/url", urlController);
+app.use("", urlController);
 
 app.use(customErrorHandler);
 

@@ -16,3 +16,14 @@ export const connectRedis = async () => {
     throw error;
   }
 };
+
+export const setValue = (key: string, value: string, expiration?: number) => {
+  if (expiration) {
+    return redisClient.setEx(key, expiration, value);
+  }
+  return redisClient.set(key, value);
+};
+
+export const getValue = (key: string) => {
+  return redisClient.get(key);
+};
