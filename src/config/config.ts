@@ -15,9 +15,7 @@ const getConfig = () => ({
     PORT: process.env.DB_PORT,
   },
   REDIS: {
-    HOST: process.env.REDIS_HOST,
-    PORT: process.env.REDIS_PORT,
-    PASSWORD: process.env.REDIS_PASSWORD,
+    URL: process.env.REDIS_URL || "redis://localhost:6379",
   },
 });
 

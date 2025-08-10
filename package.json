@@ -2,10 +2,10 @@
   "name": "url_shortner",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/server.js", 
+  "main": "dist/server.js",
   "scripts": {
     "clean": "rm -rf dist",
-    "build":"tsc",
+    "build": "tsc",
     "start": "npm run build && node dist/server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -30,6 +30,9 @@
     "typescript": "^5.9.2"
   },
   "dependencies": {
-    "nanoid": "^5.1.5"
+    "knex": "^3.1.0",
+    "nanoid": "^5.1.5",
+    "pg": "^8.16.3",
+    "redis": "^5.8.0"
   }
 }
