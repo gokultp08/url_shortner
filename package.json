@@ -7,6 +7,7 @@
     "clean": "rm -rf dist",
     "build": "tsc",
     "start": "npm run build && node dist/server.js",
+    "dev": "nodemon --watch src --ext ts --delay 2 --exec ts-node src/server.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -26,6 +27,7 @@
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
     "install": "^0.13.0",
+    "nodemon": "^3.1.10",
     "npm": "^11.5.2",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.2"
