@@ -1,18 +1,16 @@
 import { NextFunction, Request, Response } from "express";
-import { nanoid } from "nanoid";
 import { db } from "../config/db";
-
-const generateShortUrl = (url: string) => {
-  return nanoid(8);
-};
+import { generateShortUrl } from "../utils/utils";
+import { getValue, setValue } from "../config/redis";
+import { REDIS_KEY_NAME } from "../utils/constants";
 
 const findByUrl = async (url: string) => {
   const result = await db("shortened_urls")
     .select("original_url")
     .where("short_url", url)
-    .first()
+    .first();
 
-  return result || null
+  return result || null;
 };
 
 const createShortUrl = async (
@@ -20,25 +18,33 @@ const createShortUrl = async (
   res: Response,
   _next: NextFunction
 ) => {
-  const { url: originalUrl } = req.body;
-  const shortUrl = generateShortUrl(originalUrl);
+  try {
+    const { url: originalUrl } = req.body;
+    let shortUrl = generateShortUrl(originalUrl);
 
-  // TODO: Prevent duplicate short URLs
+    while (await findByUrl(shortUrl)) {
+      shortUrl = generateShortUrl(originalUrl);
+    }
 
-  const result = await db("shortened_urls")
-    .insert({
+    await db("shortened_urls").insert({
       original_url: originalUrl,
       short_url: shortUrl,
       created_time: db.fn.now(),
-    })
-    .returning("*");
+    });
 
-  console.log("Database insert result:", result);
+    setValue(`${REDIS_KEY_NAME}_${shortUrl}`, originalUrl);
 
-  res.status(200).json({
-    message: "Short URL created successfully",
-    data: { shortUrl: `${process.env.BASE_URL}/${nanoid(8)}` },
-  });
+    res.status(200).json({
+      message: "Short URL created successfully",
+      data: { shortUrl: `${process.env.BASE_URL}/${shortUrl}` },
+    });
+  } catch (error) {
+    console.error(
+      "Error creating short URL -> url-services.ts -> createShortUrl",
+      error
+    );
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
 };
 
 const getUrlFromShortUrl = async (
@@ -46,26 +52,39 @@ const getUrlFromShortUrl = async (
   res: Response,
   _next: NextFunction
 ) => {
-  if (!req.params || !req.params.shortUrl) {
-    return res.status(400).json({
-      message: "Short URL parameter is missing",
-    });
+  try {
+    const shortUrl = req.params?.shortUrl;
+
+    if (!shortUrl) {
+      return res.status(400).json({
+        message: "Short URL parameter is missing",
+      });
+    }
+
+    const cachedResult = await getValue(`${REDIS_KEY_NAME}_${shortUrl}`);
+
+    if (cachedResult) {
+      return res.redirect(cachedResult);
+    }
+
+    const result = await findByUrl(shortUrl);
+
+    if (!result) {
+      return res.status(404).json({
+        message: "Short URL not found",
+      });
+    }
+
+    setValue(`${REDIS_KEY_NAME}_${shortUrl}`, result.original_url);
+
+    res.redirect(result.original_url);
+  } catch (error) {
+    console.error(
+      "Error retrieving original URL from short URL -> url-services.ts -> getUrlFromShortUrl",
+      error
+    );
+    return res.status(500).json({ message: "Internal Server Error" });
   }
-
-  const shortUrl = req.params.shortUrl.startsWith("/")
-  ? req.params.shortUrl.slice(1)
-  : req.params.shortUrl;
-  
-  const result = await findByUrl(shortUrl);
-  console.log("Received short URL:", result);
-
-  if (!result) {
-    return res.status(404).json({
-      message: "Short URL not found",
-    });
-  }
-
-  res.redirect(result.original_url);
 };
 
 export default {
